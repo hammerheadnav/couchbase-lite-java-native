@@ -14,7 +14,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 22
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
@@ -65,9 +65,7 @@ android {
     libraryVariants.all { variant ->
         variant.outputs.each { output ->
             if (output.outputFile != null && output.outputFile.name.endsWith('.aar')) {
-                def file = output.outputFile
-                def fileName = "couchbase-lite-java-native-sqlcipher.aar"
-                output.outputFile = new File(file.parent, fileName)
+                output.outputFileName = "couchbase-lite-java-native-sqlcipher.aar"
             }
         }
     }
@@ -93,8 +91,10 @@ task createMavenDirectory(type: Exec) {
 createMavenDirectory.onlyIf { System.getenv("MAVEN_UPLOAD_REPO_URL").contains("files") }
 
 // first create the directory, then do the upload
-task uploadArchivesWrapper(dependsOn: createMavenDirectory) << {
-    uploadArchives.execute()
+task uploadArchivesWrapper(dependsOn: createMavenDirectory) {
+    doLast {
+        uploadArchives.execute()
+    }
 }
 
 // this will upload, but will not first create a directory (which is needed on some servers)
